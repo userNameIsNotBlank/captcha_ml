@@ -6,6 +6,7 @@ from PIL import Image
 import image_training
 import configparser
 from config import *
+import numpy as np
 
 
 #全局变量
@@ -32,6 +33,39 @@ def read_train_data():
             image_array.append(image)
             image_label.append(label)
     return image_array, image_label
+
+def read_train_data_all_windows():
+    image_label = []
+    image_feature = []
+    minibatch_train_iterators = read_train_data_windows()
+    for i, (data, label) in enumerate(minibatch_train_iterators):
+        image_label += label
+        image_feature += data
+    print(np.array(image_label).shape)
+    print(np.array(image_feature).shape)
+    return image_feature, image_label
+
+
+def read_train_data_windows():
+    image_label = []
+    image_feature = []
+    labelList1 = [chr(i) for i in range(ord('0'), ord('9') + 1)]
+    labelList2 = [chr(i) for i in range(ord('A'),ord('Z') + 1)]
+    print(labelList1 + labelList2)
+    for label in (labelList1 + labelList2):
+        print(label)
+        image_array = []
+        label_path = train_data_path + '/' + label
+        for image_path in os.listdir(label_path):
+            image = Image.open(label_path + '/' + image_path)
+            image_array.append(image)
+            image_label.append(label)
+        for num, image in enumerate(image_array):
+            feature = feature_transfer(image)
+            image_feature.append(feature)
+        yield image_feature, image_label
+        image_label = []
+        image_feature = []
 
 
 #feature generated

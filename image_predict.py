@@ -89,6 +89,7 @@ def main():
         predict_list.append(predict)
         if predict == image_label[num]:
             acc += 1
+            print("yes:", image_label[num], "  predict:", predict)
         else:
             print("-----------------------")
             print("actual:",image_label[num], "  predict:", predict)

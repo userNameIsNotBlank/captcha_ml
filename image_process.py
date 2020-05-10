@@ -305,14 +305,14 @@ def main(captcha_path):
 
 
 if __name__ == '__main__':
-    main(captcha_path)
-    # p = Process(target=main, args=(captcha_path,))
-    # p.start()
-    # p = Process(target=main, args=(captcha_path_2,))
-    # p.start()
-    # p = Process(target=main, args=(captcha_path_3,))
-    # p.start()
-    # p = Process(target=main, args=(captcha_path_4,))
-    # p.start()
+    #main(captcha_path)
+    p = Process(target=main, args=(captcha_path,))
+    p.start()
+    p = Process(target=main, args=(captcha_path_2,))
+    p.start()
+    p = Process(target=main, args=(captcha_path_3,))
+    p.start()
+    p = Process(target=main, args=(captcha_path_4,))
+    p.start()
 
 

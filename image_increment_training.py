@@ -60,8 +60,11 @@ def iter_minibatches():
 
 
 if __name__ == '__main__':
-    minibatch_train_iterators = iter_minibatches()
+    minibatch_train_iterators = image_feature.read_train_data_windows()
     image_increment_model.trainModel_increment(minibatch_train_iterators)
+
+    # image_feature, image_label = image_feature.read_train_data_windows()
+    # image_increment_model.trainModel_increment2(image_feature, image_label)
 
 
 

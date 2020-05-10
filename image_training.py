@@ -24,9 +24,6 @@ import configparser
 # image_height = config.get("global", "image_height") #标准化的图像高度（像素）
 
 
-
-
-
 def main():
     # image_process.main() #处理原始验证码，并存到文件
     # feature, label = image_feature.main() #特征处理
@@ -36,18 +33,27 @@ def main():
     feature = []
     for num, image in enumerate(image_array):
         feature_vec = image_feature.feature_transfer(image)
-        # print('label: ',image_label[num])
-        # print(feature)
         feature.append(feature_vec)
+    print(np.array(feature).shape)
+    print(np.array(label).shape)
+    #训练模型
+    result = image_model.trainModel(feature, label)
+
+
+def main_windows():
+    # image_process.main() #处理原始验证码，并存到文件
+    # feature, label = image_feature.main() #特征处理
+
+    #特征处理 windows
+    feature, label = image_feature.read_train_data_all_windows()
     print(np.array(feature).shape)
     print(np.array(label).shape)
 
     #训练模型
     result = image_model.trainModel(feature, label)
-    print(result)
 
 
 if __name__ == '__main__':
-    main()
+    main_windows()
 
 

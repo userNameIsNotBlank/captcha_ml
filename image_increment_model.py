@@ -96,6 +96,32 @@ def trainModel_increment(minibatch_train_iterators):
     print("model save success!")
     return model
 
+def trainModel_increment3():
+    print("trainning process >>>>>>>>>>>>>>>>>>>>>>")
+    all = np.unique(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    model = linear_model.SGDClassifier(loss="hinge", penalty="l2")
+    for i, (data, label) in enumerate(minibatch_train_iterators):
+        # 使用 partial_fit ，并在第一次调用 partial_fit 的时候指定 classes
+        model.partial_fit(data, label, classes=all)
+        print("{} time".format(i))  # 当前次数
+        print("{} score".format(model.score(data, label)))  # 在测试集上看效果
+    # 模型持久化，保存到本地
+    joblib.dump(model, model_path)
+    print("model save success!")
+    return model
+
+def trainModel_increment2(data, label):
+    print("trainning process >>>>>>>>>>>>>>>>>>>>>>")
+    all = np.unique(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    model = linear_model.SGDClassifier(loss="hinge", penalty="l2")
+    # 使用 partial_fit ，并在第一次调用 partial_fit 的时候指定 classes
+    model.partial_fit(data, label, classes=all)
+    print("{} score".format(model.score(data, label)))  # 在测试集上看效果
+    # 模型持久化，保存到本地
+    joblib.dump(model, model_path)
+    print("model save success!")
+    return model
+
 
 
 
