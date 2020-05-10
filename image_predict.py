@@ -2,10 +2,10 @@
 
 import os
 import numpy as np
-from captcha_ml import image_process, image_feature, image_model, image_training
+import image_process, image_feature, image_model, image_training
 from sklearn.externals import joblib
 import configparser
-from captcha_ml.config import *
+from config import *
 
 
 
@@ -29,7 +29,7 @@ def clean():
     #验证码清理
     image_array, image_label = image_process.read_captcha(test_data_path) #读取待测试验证码文件
     print("待测试的验证码数量：", len(image_array))
-    image_clean = image_process.image_transfer(image_array) #转换成灰度图像，并去除背景噪声
+    image_clean = image_process.image_transfer(image_array, image_label, False) #转换成灰度图像，并去除背景噪声
     image_array = [] #[[im_1_1,im_1_2,im_1_3,im_1_4],[im_2_1,im_2_2,im_2_3,im_2_4],...]
     for each_image in image_clean:
         image_out = image_process.get_clear_bin_image(each_image) #转换为二值图片，并去除剩余噪声点
@@ -90,10 +90,9 @@ def main():
         if predict == image_label[num]:
             acc += 1
         else:
-            # print("-----------------------")
-            # print("actual:",image_label[num])
-            # print("predict:", predict)
-    # print("测试集预测acc：", acc/len(image_label))
+            print("-----------------------")
+            print("actual:",image_label[num], "  predict:", predict)
+    print("测试集预测acc：", acc/len(image_label))
     #输出到文件
     write_to_file(predict_list)
 

@@ -1,8 +1,11 @@
 #-*- coding:utf-8 -*
+import os
 
 import numpy as np
-from captcha_ml import image_process, image_feature, image_model
-from captcha_ml.config import *
+from PIL import Image
+
+import image_process, image_feature, image_model
+from config import *
 import configparser
 
 
@@ -41,8 +44,7 @@ def main():
 
     #训练模型
     result = image_model.trainModel(feature, label)
-
-
+    print(result)
 
 
 if __name__ == '__main__':

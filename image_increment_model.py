@@ -23,6 +23,7 @@ from sklearn import metrics
 from sklearn import svm
 
 import image_feature
+import image_predict
 from config import *
 import configparser
 
@@ -36,6 +37,7 @@ import configparser
 
 #训练模型
 def trainModel(data, label):
+
     print("trainning process >>>>>>>>>>>>>>>>>>>>>>")
 
     # model = svm.SVC(decision_function_shape='ovo',kernel='rbf')
@@ -49,10 +51,20 @@ def trainModel(data, label):
     # print("linear: ", scores.mean())
     # model.fit(data, label)
 
-    model = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
-    scores = cross_val_score(model, data, label, cv=10)  # 交叉检验，计算模型平均准确率
-    print("rf: ", scores.mean())
-    model.fit(data, label)  # 拟合模型
+    # model = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=0)
+    # scores = cross_val_score(model, data, label, cv=10)  # 交叉检验，计算模型平均准确率
+    # print("rf: ", scores.mean())
+    # model.fit(data, label)  # 拟合模型
+
+    all = np.unique(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    #增量学习
+    if os.path.exists(model_path):
+        model = joblib.load(model_path)
+        model.partial_fit(data, label, classes=all)  # 拟合模型
+    else:
+        model = linear_model.SGDClassifier()
+        model.partial_fit(data, label, classes=all)
+
 
     predict = model.predict(data)
     acc = 0
@@ -69,19 +81,21 @@ def trainModel(data, label):
     return model
 
 
-#测试模型
-def testModel(data, label):
-    #读取模型
-    model = joblib.load(model_path)
-    #预测
-    predict_list = model.predict(data)
-    #print classification_report(label, predict_list)#按类别分类的各种指标
-    print("\ntest process >>>>>>>>>>>>>>>>>>>>>>>>")
-    print("test precision: ",metrics.precision_score(label, predict_list))#precision
-    print("test recall: ",metrics.recall_score(label, predict_list))#recall
-    print("test f1 score: ",metrics.f1_score(label, predict_list))#f1 score
-    print("confusion matrix:")
-    print(confusion_matrix(label, predict_list))#混淆矩阵
+#训练模型 #增量学习
+def trainModel_increment(minibatch_train_iterators):
+    print("trainning process >>>>>>>>>>>>>>>>>>>>>>")
+    all = np.unique(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    model = linear_model.SGDClassifier(loss="hinge", penalty="l2")
+    for i, (data, label) in enumerate(minibatch_train_iterators):
+        # 使用 partial_fit ，并在第一次调用 partial_fit 的时候指定 classes
+        model.partial_fit(data, label, classes=all)
+        print("{} time".format(i))  # 当前次数
+        print("{} score".format(model.score(data, label)))  # 在测试集上看效果
+    # 模型持久化，保存到本地
+    joblib.dump(model, model_path)
+    print("model save success!")
+    return model
+
 
 
 

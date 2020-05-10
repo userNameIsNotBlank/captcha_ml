@@ -3,9 +3,9 @@
 
 import os
 from PIL import Image
-from captcha_ml import image_training
+import image_training
 import configparser
-from captcha_ml.config import *
+from config import *
 
 
 #全局变量
@@ -15,7 +15,7 @@ from captcha_ml.config import *
 # image_character_num = int(config.get("global", "image_character_num")) #识别的验证码个数
 # image_width = int(config.get("global", "image_width")) #标准化的图像宽度（像素）
 # image_height = int(config.get("global", "image_height")) #标准化的图像高度（像素）
-
+from config import train_data_path, image_width
 
 
 def read_train_data():
@@ -32,7 +32,6 @@ def read_train_data():
             image_array.append(image)
             image_label.append(label)
     return image_array, image_label
-
 
 
 #feature generated

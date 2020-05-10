@@ -1,15 +1,17 @@
 #-*- coding:utf-8 -*
-
+from multiprocessing import Process
 
 from PIL import Image
 import random
 import os
 import time
 import random
-from captcha_ml import image_training
+import image_training
 import configparser
-from captcha_ml.config import *
-
+from config import *
+import time
+#from gevent import monkey
+#monkey.patch_all()
 
 
 #全局变量
@@ -25,8 +27,6 @@ from captcha_ml.config import *
 
 
 
-
-
 def read_captcha(path):
     """
     读取验证码图片
@@ -36,7 +36,7 @@ def read_captcha(path):
     image_array = []
     image_label = []
     file_list = os.listdir(path)#获取captcha文件
-    for file in file_list:
+    for i, file in enumerate(file_list):
         image = Image.open(path + '/' + file)#打开图片
         file_name = file.split(".")[0]
         image_array.append(image)
@@ -44,7 +44,7 @@ def read_captcha(path):
     return image_array, image_label
 
 
-def image_transfer(image_arry, captcha_clean_save = False):
+def image_transfer(image_arry, image_label, captcha_clean_save = False):
     """
     图像粗清理
     将图像转换为灰度图像，将像素值小于某个值的点改成白色
@@ -54,20 +54,18 @@ def image_transfer(image_arry, captcha_clean_save = False):
     """
     image_clean = []
     for i, image in enumerate(image_arry):
-        image = image.convert('L') #转换为灰度图像，即RGB通道从3变为1
+        image = image.convert('L')  #type: Image.Image #转换为灰度图像，即RGB通道从3变为1
         im2 = Image.new("L", image.size, 255)
-
-        for y in range(image.size[1]): #遍历所有像素，将灰度超过阈值的像素转变为255（白）
-            for x in range(image.size[0]):
+        for y in range(image.height): #遍历所有像素，将灰度超过阈值的像素转变为255（白）
+            for x in range(image.width):
                 pix = image.getpixel((x, y))
                 if int(pix) > threshold_grey:  #灰度阈值
                     im2.putpixel((x, y), 255)
                 else:
                     im2.putpixel((x, y), pix)
-
+        image_clean.append(im2)
         if captcha_clean_save: #保存清理过后的iamge到文件
             im2.save(captcha_path_clean_path + '/' + image_label[i] + '.jpg')
-        image_clean.append(im2)
     return image_clean
 
 
@@ -237,8 +235,8 @@ def image_split(image):
     start = 0
     end = 0
     letters = []
-    for x in range(image.size[0]):
-        for y in range(image.size[1]):
+    for x in range(image.width):
+        for y in range(image.height):
             pix = image.getpixel((x, y))
             if pix != True:
                 inletter = True
@@ -274,61 +272,47 @@ def image_split(image):
     return image_split_array[0:int(image_character_num)]
 
 
-# def image_save(image_array, image_label):
-#     """
-#     保存图像到文件
-#     :param image_array: 切割后的图像list
-#     :param image_label:
-#     :return:
-#     """
-#
-#     for num, image in enumerate(image_array):
-#         label = image_label[num]
-#         for k, image_meta in enumerate(image):
-#             file_path = captcha_path_clean_path + label[k] + '/'
-#             file_name = str(int(time.time())) + '_' + str(random.randint(0,100)) + '.gif'
-#             if not os.path.exists(file_path):
-#                 os.makedirs(file_path)
-#
-#             image_meta.save(file_path  + file_name, 'gif')#BILINEAR
-#         print("complete save: ",num)
-
-
 def image_save(image_array, image_label):
     """
     保存图像到文件
     :param image_array: 切割后的图像list
-    :param image_label: 图像的标签
+    :param image_label:
     :return:
     """
-    for num, image_meta in enumerate(image_array):
-        file_path = captcha_path_clean_path + image_label[num] + '/'
-        file_name = str(int(time.time())) + '_' + str(random.randint(0,100)) + '.gif'
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-
-        image_meta.save(file_path  + file_name, 'gif')
-    print("complete save: ",num)
-
-
-
+    for num, image in enumerate(image_array):
+        label = image_label[num]
+        for k, image_meta in enumerate(image):
+            file_path = train_data_path + '/' + label[k] + '/'
+            file_name = str(int(time.time())) + '_' + str(random.randint(0,100)) + '.gif'
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
+            image_meta.save(file_path  + file_name, 'gif')#BILINEAR
+        print("complete save: ",num)
 
 
-def main():
+def main(captcha_path):
+    print(captcha_path, " !!!!!!!!!!!!!!!!!!")
     image_array, image_label = read_captcha(captcha_path) #读取验证码文件
-    image_clean = image_transfer(image_array, image_label, captcha_path_clean_path) #验证码图像粗清理
-
-    # image_array = []
+    image_clean = image_transfer(image_array, image_label, True) #验证码图像粗清理
+    image_array = []
     for k, each_image in enumerate(image_clean):
         image_out = get_clear_bin_image(each_image) #验证码图像细清理
         split_result = image_split(image_out) #图像切割
-        # image_array.append(split_result)
-        image_save(split_result, image_label[k]) #保存训练图像
+        image_array.append(split_result)
+    image_save(image_array, image_label) #保存训练图像
 
 
 
 
 if __name__ == '__main__':
-    main()
+    main(captcha_path)
+    # p = Process(target=main, args=(captcha_path,))
+    # p.start()
+    # p = Process(target=main, args=(captcha_path_2,))
+    # p.start()
+    # p = Process(target=main, args=(captcha_path_3,))
+    # p.start()
+    # p = Process(target=main, args=(captcha_path_4,))
+    # p.start()
 
 

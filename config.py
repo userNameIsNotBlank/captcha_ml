@@ -2,11 +2,14 @@
 
 
 #原始路径
-path = 'C:/Users/Administrator/PycharmProjects/NeuralNetwork/captcha_test'
+path = 'E:/test/capt_ml'
 #训练集原始验证码文件存放路径
 captcha_path = path + '/captcha_soc/captcha'
+captcha_path_2 = path + '/captcha_soc/captcha2'
+captcha_path_3 = path + '/captcha_soc/captcha3'
+captcha_path_4 = path + '/captcha_soc/captcha4'
 #训练集验证码清理存放路径
-captcha__clean_path = path + '/captcha_soc/captcha_clean'
+captcha_path_clean_path = path + '/captcha_soc/captcha_clean'
 #训练集存放路径
 train_data_path = path + '/captcha_soc/training_data'
 #模型存放路径
